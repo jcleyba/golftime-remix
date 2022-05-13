@@ -1,4 +1,13 @@
-import { Avatar, Flex, Heading, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import type { Competitor } from "~/types";
 
 export type FoursomeType = Record<
@@ -7,9 +16,21 @@ export type FoursomeType = Record<
 >;
 
 export const Foursome = ({ foursome }: { foursome: FoursomeType }) => {
+  const badgeBg = useColorModeValue("gray.50", "gray.800");
+
+  const points = Object.keys(foursome).reduce((acc, key) => {
+    const pos =
+      (foursome[key].pos || "").replace("T", "").replace("-", "0") || "0";
+
+    acc += parseInt(pos) ? 100 / parseInt(pos) : 0;
+    return acc;
+  }, 0);
+
   return (
     <>
-      <Heading fontSize={20}>Mi Foursome</Heading>
+      <Heading fontSize={20} marginBottom="10">
+        Mi Foursome
+      </Heading>
       {isEmpty(foursome) ? (
         <Flex
           flexDir="column"
@@ -43,6 +64,19 @@ export const Foursome = ({ foursome }: { foursome: FoursomeType }) => {
           ))}
         </SimpleGrid>
       )}
+      <Box textAlign="center">
+        <Badge
+          fontSize="md"
+          px={4}
+          py={1}
+          bg={badgeBg}
+          fontWeight={"600"}
+          marginY="4"
+          alignSelf={"center"}
+        >
+          Puntos: {points.toFixed(2)}
+        </Badge>
+      </Box>
     </>
   );
 };

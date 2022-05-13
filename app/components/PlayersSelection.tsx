@@ -2,19 +2,28 @@ import { Avatar, Button, Flex, Icon, SimpleGrid, Text } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { IoAddCircle, IoRemoveCircle } from "react-icons/io5";
 import type { Competitor, Tournament } from "~/types";
+import type { FoursomeType } from "./Foursome";
 
 export const PlayerSelection = ({
   onSelect,
   tournament,
   selection,
 }: {
-  onSelect: (player: Record<string, Competitor>) => void;
+  onSelect: (player: FoursomeType) => void;
   tournament: Tournament;
-  selection: Record<string, Competitor>;
+  selection: FoursomeType;
 }) => {
   const addPlayer = useCallback(
     (player: Competitor) => {
-      onSelect({ ...selection, [player.id]: player });
+      onSelect({
+        ...selection,
+        [player.id]: {
+          img: player.img,
+          id: player.id,
+          name: player.name,
+          pos: player.pos,
+        },
+      });
     },
     [onSelect, selection]
   );

@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import keyBy from "lodash.keyby";
 import EventCardItem from "~/components/EventCardItem";
 import { Foursome } from "~/components/Foursome";
@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
   return (
     <SimpleSidebar>
-      <SimpleGrid columns={{ sm: 1, md: liveBet ? 4 : 2 }} columnGap="10">
+      <SimpleGrid columns={{ sm: 1, md: liveBet ? 4 : 2 }} columnGap="10" >
         {lastWinner && (
           <Flex
             w={"full"}
@@ -138,7 +138,12 @@ export default function DashboardPage() {
             </Box>
           </GridItem>
         )}
-        {nextEvent && <EventCardItem id={nextEvent.id} event={nextEvent} />}
+        {nextEvent && (
+          <Box>
+            <Text fontWeight="bold">Próximamente...</Text>
+            <EventCardItem id={nextEvent.id} event={nextEvent} />
+          </Box>
+        )}
       </SimpleGrid>
       <SimpleGrid columns={{ sm: 1, md: 2 }} columnGap={30} marginY="10">
         <Box>
@@ -171,7 +176,16 @@ export default function DashboardPage() {
                 Header: "Usuario",
                 Cell: (props) => (
                   <Text fontWeight={"600"} marginLeft={2}>
-                    {props.row.original.firstName} {props.row.original.lastName}
+                    {currentEvent.status !== "in" ? (
+                      `${props.row.original.firstName} ${props.row.original.lastName}`
+                    ) : (
+                      <Link
+                        to={`/events/${currentEvent.id}/user/${props.row.original.id}`}
+                      >
+                        {props.row.original.firstName}{" "}
+                        {props.row.original.lastName}
+                      </Link>
+                    )}
                   </Text>
                 ),
               },

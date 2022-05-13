@@ -1,26 +1,24 @@
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Image,
+  Input,
+  Stack,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useTransition } from "@remix-run/react";
 import authenticator from "~/services/auth.server";
 import { sessionStorage } from "~/services/session.server";
-
-import {
-  Flex,
-  Box,
-  FormControl,
-  FormLabel,
-  Input,
-  Checkbox,
-  Stack,
-  Link,
-  Button,
-  Heading,
-  Text,
-  useColorModeValue,
-  Alert,
-  AlertIcon,
-  AlertDescription,
-} from "@chakra-ui/react";
+import Logo from "../assets/golftime.svg";
 
 export const loader: LoaderFunction = async ({ request }) => {
   await authenticator.isAuthenticated(request, {
@@ -59,11 +57,20 @@ export default function LoginPage() {
       justify={"center"}
       bg={useColorModeValue("gray.50", "gray.800")}
     >
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+      <Stack
+        spacing={8}
+        mx={"auto"}
+        minW={{ sm: "sm", md: "md" }}
+        py={12}
+        px={6}
+      >
         <Stack align={"center"}>
-          <Heading fontSize={"4xl"}>Sign in to your account</Heading>
+          <Image src={Logo} maxW={275} marginX={5} />
+        </Stack>
+
+        <Stack align={"center"}>
           <Text fontSize={"lg"} color={"gray.600"}>
-            to enjoy all of our cool <Link color={"blue.400"}>features</Link> ✌️
+            Adelante y suerte! 🏌️‍♂️🏌️‍♀️
           </Text>
         </Stack>
         <Form method="post">
@@ -74,39 +81,31 @@ export default function LoginPage() {
             p={8}
           >
             {error?.message && (
-              <Alert status="error">
+              <Alert status="error" marginY="5">
                 <AlertIcon />
                 <AlertDescription>{error.message}</AlertDescription>
               </Alert>
             )}
             <Stack spacing={4}>
               <FormControl id="email">
-                <FormLabel>Email address</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <Input type="email" name="email" />
               </FormControl>
               <FormControl id="password">
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Contraseña</FormLabel>
                 <Input type="password" name="password" />
               </FormControl>
               <Stack spacing={10}>
-                <Stack
-                  direction={{ base: "column", sm: "row" }}
-                  align={"start"}
-                  justify={"space-between"}
-                >
-                  <Checkbox>Remember me</Checkbox>
-                  <Link color={"blue.400"}>Forgot password?</Link>
-                </Stack>
                 <Button
-                  bg={"blue.400"}
+                  bg={"green.400"}
                   color={"white"}
                   _hover={{
-                    bg: "blue.500",
+                    bg: "green.500",
                   }}
                   type="submit"
                   isLoading={!!transition.submission}
                 >
-                  Sign in
+                  Iniciar Sesión
                 </Button>
               </Stack>
             </Stack>

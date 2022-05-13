@@ -28,6 +28,7 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
   { name: "Inicio", icon: IoHome, href: "/" },
   { name: "Torneos", icon: IoCalendar, href: "/events" },
+  { name: "Como jugar", icon: IoCalendar, href: "#" },
 ];
 
 export default function SimpleSidebar({ children }: { children: ReactNode }) {

@@ -1,5 +1,5 @@
 import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useSubmit } from "@remix-run/react";
 import keyBy from "lodash.keyby";
@@ -20,15 +20,15 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     failureRedirect: "/login",
   });
 
-  const tournamentId = params.eventId;
-  console.debug("$$$ params", params);
-  if (!tournamentId) {
+  const { eventId: tournamentId, userId } = params;
+
+  if (!tournamentId || !userId) {
     return null;
   }
 
   const [tournament, liveBet] = await Promise.all([
     EventManager.fetchEventById(tournamentId),
-    currentBet(tournamentId, user?.id),
+    currentBet(tournamentId, userId || user?.id),
   ]);
 
   const positionsByPlayer = keyBy(tournament.competitors, "id");
@@ -47,12 +47,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       return acc;
     }, {}),
   });
-};
-
-export const action: ActionFunction = async ({ request }) => {
-  console.log("$$$", await request.formData());
-
-  return null;
 };
 
 export default function SingleEvent() {
