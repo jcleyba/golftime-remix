@@ -16,7 +16,7 @@ class EventManager {
       if (this.events.length) return this.events;
 
       const data = await fetch(`${process.env.EVENTS_ENDPOINT}`);
-      console.debug("$$$ fetching");
+
       if (!data.ok) {
         throw Error("Failed to fetch current tournament");
       }

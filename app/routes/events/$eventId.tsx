@@ -1,46 +1,80 @@
-import {
-  Avatar,
-  Box,
-  Flex,
-  Heading,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import type { LoaderFunction } from "@remix-run/node";
+import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import { useCallback, useState } from "react";
+import { Foursome } from "~/components/Foursome";
+import { Leaderboard } from "~/components/Leaderboard";
+import { PlayerSelection } from "~/components/PlayersSelection";
 import SimpleSidebar from "~/components/Sidebar";
 import authenticator from "~/services/auth.server";
 import EventManager from "~/services/events.server";
-import { createUser } from "~/services/user.server";
-import type { Tournament } from "~/types";
+import type { Competitor, Tournament } from "~/types";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
-  await createUser();
   const tournamentId = params.eventId;
   if (!tournamentId) {
     return null;
   }
-  return json<Tournament>(await EventManager.fetchEventById(tournamentId));
+  const tournament = await EventManager.fetchEventById(tournamentId);
+
+  return json<Tournament>({
+    ...tournament,
+    competitors: tournament.competitors?.sort(
+      (a, b) =>
+        parseInt(a.pos.replace("T", "")) - parseInt(b.pos.replace("T", ""))
+    ),
+  });
 };
+
+export const action: ActionFunction = async ({ request }) => {
+  console.log("$$$", await request.formData());
+
+  return null;
+};
+
+type FoursomeType = Record<string, Competitor>;
 
 export default function SingleEvent() {
   const tournament: Tournament = useLoaderData();
   const [course] = Object.keys(tournament.courses);
-  console.debug("$$$", tournament);
+  const [foursome, setFoursome] = useState<FoursomeType>({});
+  const submit = useSubmit();
+
+  const saveDate = useCallback(
+    (foursome: FoursomeType) => {
+      let data: Record<string, string> = Object.keys(foursome).reduce(
+        (acc: Record<string, string>, item) => {
+          acc[item] = JSON.stringify(foursome[item]);
+
+          return acc;
+        },
+        {}
+      );
+
+      setFoursome(foursome);
+      submit(data, { method: "post", action: `/events/${tournament.id}` });
+    },
+    [setFoursome, submit, tournament]
+  );
+
   return (
     <SimpleSidebar>
+      <Box
+        w={"full"}
+        bg={useColorModeValue("white", "gray.900")}
+        boxShadow={"2xl"}
+        rounded={"lg"}
+        p={6}
+        my={2}
+      >
+        <Foursome foursome={foursome} />
+      </Box>
+
       <Box
         w={"full"}
         bg={useColorModeValue("white", "gray.900")}
@@ -54,44 +88,19 @@ export default function SingleEvent() {
             {tournament?.courses[course].nm}
           </Heading>
         )}
-        <TableContainer>
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Posición</Th>
-                <Th>Jugador</Th>
-                <Th>Total</Th>
-                <Th>Score</Th>
-                <Th>Hoyo</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {tournament.competitors
-                ?.sort((a, b) => {
-                  return (
-                    parseInt(a.pos.replace("T", "")) -
-                    parseInt(b.pos.replace("T", ""))
-                  );
-                })
-                .map((competitor) => (
-                  <Tr key={competitor.id}>
-                    <Td>{competitor.pos}</Td>
-                    <Td>
-                      <Flex alignItems={"center"}>
-                        <Avatar src={competitor.img} />
-                        <Text ml="2" fontWeight={"bold"}>
-                          {competitor.name}
-                        </Text>
-                      </Flex>
-                    </Td>
-                    <Td>{competitor.toPar}</Td>
-                    <Td>{competitor.today}</Td>
-                    <Td>{competitor.thru}</Td>
-                  </Tr>
-                ))}
-            </Tbody>
-          </Table>
-        </TableContainer>
+        {tournament.status !== "pre" && tournament.competitors ? (
+          <Leaderboard tournament={tournament} />
+        ) : tournament.competitors ? (
+          <Form>
+            <PlayerSelection
+              tournament={tournament}
+              onSelect={saveDate}
+              selection={foursome}
+            />
+          </Form>
+        ) : (
+          <Text>Torneo sin jugadores</Text>
+        )}
       </Box>
     </SimpleSidebar>
   );

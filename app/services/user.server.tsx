@@ -5,14 +5,11 @@ import chunk from "lodash.chunk";
 import type { User } from "./session.server";
 
 export const listUsers = async () => {
-  const time = Date.now();
-
   const { Items } = await UserEntity.query("User#Current", {
     reverse: true,
     index: "sk-points-index",
   });
 
-  console.debug("$$$", (Date.now() - time) / 1000, "s");
   return Items.map(({ firstName, lastName, points }: User) => ({
     firstName,
     lastName,

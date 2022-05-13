@@ -15,11 +15,19 @@ export let loader: LoaderFunction = async ({ request }) => {
     failureRedirect: "/login",
   });
 
-  const [, currentEvent, users] = await Promise.all([
+  let [, currentEvent, users] = await Promise.all([
     auth,
     EventsManager.fetchCurrentEvent(),
     listUsers(),
   ]);
+
+  currentEvent = {
+    ...currentEvent,
+    competitors: currentEvent.competitors?.sort(
+      (a, b) =>
+        parseInt(a.pos.replace("T", "")) - parseInt(b.pos.replace("T", ""))
+    ),
+  };
 
   return json<{ currentEvent: Tournament | null; users: User[] }>({
     currentEvent,

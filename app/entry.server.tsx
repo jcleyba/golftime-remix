@@ -14,7 +14,6 @@ AWS.config.update({
   accessKeyId: process.env.DYNAMODB_ACCESS_KEY_ID,
   secretAccessKey: process.env.DYNAMODB_SECRET_ACCESS_KEY,
 });
-console.debug('$$$ PASA')
 
 export default function handleRequest(
   request: Request,
