@@ -1,14 +1,13 @@
+import bcrypt from "bcrypt";
 import { query as sql } from "db";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import type { User } from "./session.server";
 import { sessionStorage } from "./session.server";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 // Create an instance of the authenticator, pass a Type, User,  with what
 // strategies will return and will store in the session
-const authenticator = new Authenticator<User | Error | null>(sessionStorage, {
+const authenticator = new Authenticator<User | null>(sessionStorage, {
   sessionKey: "sessionKey", // keep in sync
   sessionErrorKey: "sessionErrorKey", // keep in sync
 });

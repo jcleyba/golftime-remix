@@ -10,7 +10,8 @@ export const listUsers = async () => {
     index: "sk-points-index",
   });
 
-  return Items.map(({ firstName, lastName, points }: User) => ({
+  return Items.map(({ firstName, lastName, points, id }: User) => ({
+    id,
     firstName,
     lastName,
     points: points?.toFixed(2),
@@ -18,7 +19,7 @@ export const listUsers = async () => {
 };
 
 export const createUser = async () => {
-  /*  const { rows, rowCount } = await sql(`select * from bets`, []);
+  /* const { rows, rowCount } = await sql(`select * from bets`, []);
 
   const chunks = chunk(rows, 20);
 

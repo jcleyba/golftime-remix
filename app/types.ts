@@ -15,6 +15,7 @@ export interface Location {
 }
 
 export interface ScheduledEvent {
+  id: string;
   name: string;
   startDate: string;
   endDate: string;

@@ -1,14 +1,15 @@
 import { Avatar, Flex, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import type { Competitor } from "~/types";
 
-export const Foursome = ({
-  foursome,
-}: {
-  foursome: Record<string, Competitor>;
-}) => {
+export type FoursomeType = Record<
+  string,
+  Pick<Competitor, "img" | "name" | "id"> & { pos?: string }
+>;
+
+export const Foursome = ({ foursome }: { foursome: FoursomeType }) => {
   return (
     <>
-      <Heading>Mi Foursome</Heading>
+      <Heading fontSize={20}>Mi Foursome</Heading>
       {isEmpty(foursome) ? (
         <Flex
           flexDir="column"
@@ -35,6 +36,9 @@ export const Foursome = ({
               <Text ml="2" fontWeight={"bold"} textAlign="center">
                 {foursome[id].name}
               </Text>
+              <Text ml="2" fontWeight={"bold"} textAlign="center">
+                {foursome[id].pos}
+              </Text>
             </Flex>
           ))}
         </SimpleGrid>
@@ -43,7 +47,9 @@ export const Foursome = ({
   );
 };
 
-function isEmpty(obj: Record<string, Competitor>): boolean {
+function isEmpty(
+  obj: Record<string, Pick<Competitor, "img" | "name">>
+): boolean {
   for (const _key in obj) {
     return false;
   }

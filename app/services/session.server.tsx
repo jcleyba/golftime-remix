@@ -17,9 +17,9 @@ export let { getSession, commitSession, destroySession } = sessionStorage;
 
 // define the user model
 export type User = {
+  id: string;
   firstName: string;
   lastName: string;
-  id: number;
   email: string;
   points?: number;
 };

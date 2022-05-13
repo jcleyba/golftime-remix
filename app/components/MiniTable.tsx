@@ -43,6 +43,7 @@ export function MiniTable({
       rounded={"lg"}
       p={6}
       textAlign={"center"}
+      minH="100%"
     >
       {!!title && (
         <Heading fontSize={"lg"} marginY={5}>
