@@ -11,12 +11,14 @@ export const listUsers = async () => {
     index: "sk-points-index",
   });
 
-  return Items.map(({ firstName, lastName, points, id }: User) => ({
-    id,
-    firstName,
-    lastName,
-    points: points?.toFixed(2),
-  }));
+  return Items.map(
+    ({ firstName, lastName, points, pk: id }: User & { pk: string }) => ({
+      id,
+      firstName,
+      lastName,
+      points: points?.toFixed(2),
+    })
+  );
 };
 
 export const createUser = async () => {
