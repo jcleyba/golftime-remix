@@ -3,6 +3,7 @@ import { BetEntity } from "../entities/Bet";
 import { query as sql } from "db";
 import chunk from "lodash.chunk";
 import type { User } from "./session.server";
+//import { DocumentClient } from "~/repositories/table";
 
 export const listUsers = async () => {
   const { Items } = await UserEntity.query("User#Current", {
@@ -52,6 +53,65 @@ export const createUser = async () => {
         })
       );
     }
+    await Promise.all(promiseArray);
+  } */
+  /* const { rows, rowCount } = await sql(`select * from users`, []);
+
+  const chunks = chunk(rows, 20);
+
+  for (let chunkIndex in chunks) {
+    const block = chunks[chunkIndex];
+
+    console.log(
+      `Block Number: ${chunkIndex} of ${chunks.length}. Block size: ${block.length}`
+    );
+    let promiseArray: Promise<any>[] = [];
+
+    const resp = await BetEntity.scan({
+      filters: [
+        {
+          attr: "season",
+          eq: 2022,
+        },
+      ],
+    });
+
+    let map: Record<string, number> = {};
+    resp.Items.forEach((bet: any) => {
+      map[bet.sk] = (map[bet.sk] || 0) + parseFloat(bet?.result || 0);
+    });
+
+    for (const blockIndex in block) {
+      const item = block[blockIndex];
+      const {
+        firstname: firstName,
+        lastname: lastName,
+        email,
+        password,
+        verified,
+        token,
+        createdAt,
+        id,
+      } = item;
+      var params = {
+        TableName: "golftime",
+        Item: {
+          pk: id.toString(),
+          sk: "User#Current",
+          password,
+          firstName,
+          lastName,
+          email,
+          verified,
+          token,
+          createdAt,
+          points: map[id.toString()],
+        },
+      };
+
+      await promiseArray.push(DocumentClient.put(params).promise());
+    }
+
     await Promise.all(promiseArray);
   } */
   /* const resp = await BetEntity.scan({

@@ -22,7 +22,7 @@ export default function EventCardItem({
   const badgeBg = useColorModeValue("gray.50", "gray.800");
 
   return (
-    <Center py={2}>
+    <Center py={2} minH="100%">
       <Box
         maxW={"640px"}
         w={"full"}

@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   Table,
+  TableContainer,
   Tbody,
   Td,
   Th,
@@ -37,48 +38,49 @@ export function MiniTable({
 
   return (
     <Box
-      w={"full"}
+      maxWidth={"full"}
+      overflow="hidden"
       bg={useColorModeValue("white", "gray.900")}
       boxShadow={"2xl"}
       rounded={"lg"}
       p={6}
-      textAlign={"center"}
-      minH="100%"
     >
       {!!title && (
         <Heading fontSize={"lg"} marginY={5}>
           {title}
         </Heading>
       )}
-      <Table {...getTableProps()}>
-        <Thead>
-          {headerGroups.map((headerGroup, i) => (
-            <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
-              {headerGroup.headers.map((column, j) => (
-                <Th {...column.getHeaderProps()} key={j}>
-                  {column.render("Header")}
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
-        <Tbody {...getTableBodyProps()}>
-          {page.map((row: any, i: number) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()} key={i}>
-                {row.cells.map((cell: any, j: number) => {
-                  return (
-                    <Td {...cell.getCellProps()} key={j}>
-                      {cell.render("Cell")}
-                    </Td>
-                  );
-                })}
+      <TableContainer>
+        <Table variant="simple" {...getTableProps()}>
+          <Thead>
+            {headerGroups.map((headerGroup, i) => (
+              <Tr {...headerGroup.getHeaderGroupProps()} key={i}>
+                {headerGroup.headers.map((column, j) => (
+                  <Th {...column.getHeaderProps()} key={j}>
+                    {column.render("Header")}
+                  </Th>
+                ))}
               </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+            ))}
+          </Thead>
+          <Tbody {...getTableBodyProps()}>
+            {page.map((row: any, i: number) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()} key={i}>
+                  {row.cells.map((cell: any, j: number) => {
+                    return (
+                      <Td {...cell.getCellProps()} key={j}>
+                        {cell.render("Cell")}
+                      </Td>
+                    );
+                  })}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
       <Flex marginY={5} justifyContent="center" alignItems={"center"}>
         <Button onClick={previousPage} size="sm">
           Prev

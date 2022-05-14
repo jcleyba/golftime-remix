@@ -94,7 +94,10 @@ export default function DashboardPage() {
 
   return (
     <SimpleSidebar>
-      <SimpleGrid columns={{ sm: 1, md: liveBet ? 4 : 2 }} columnGap="10" >
+      <SimpleGrid
+        columnGap={{ sm: 0, md: 10 }}
+        templateColumns={{ base: "1fr", md: "1fr 2fr 1fr" }}
+      >
         {lastWinner && (
           <Flex
             w={"full"}
@@ -112,7 +115,7 @@ export default function DashboardPage() {
               ⛳
             </Heading>
             <Text fontSize={20} fontWeight="bold">
-              {lastWinner.user?.firstName} {lastWinner.user.lastName}
+              {lastWinner.user?.firstName} {lastWinner.user?.lastName}
             </Text>
             <Text fontSize={15} fontWeight="bold">
               {lastWinner.user?.points} Puntos
@@ -120,80 +123,78 @@ export default function DashboardPage() {
           </Flex>
         )}
         {liveBet && (
-          <GridItem colSpan={2}>
-            <Box
-              height="calc(100% - 15px)"
-              w={"full"}
-              bg={colorValue}
-              boxShadow={"2xl"}
-              rounded={"lg"}
-              p={6}
-              my={2}
-              display="flex"
-              flexDir="column"
-              justifyContent="space-around"
-              alignItems="center"
-            >
-              <Foursome foursome={foursome} />
-            </Box>
+          <GridItem
+            w={"full"}
+            bg={colorValue}
+            boxShadow={"2xl"}
+            rounded={"lg"}
+            p={6}
+            my={2}
+            display="flex"
+            flexDir="column"
+            justifyContent="space-around"
+            alignItems="center"
+          >
+            <Foursome foursome={foursome} />
           </GridItem>
         )}
         {nextEvent && (
-          <Box>
+          <GridItem colSpan={1} minH="100%">
             <Text fontWeight="bold">Próximamente...</Text>
             <EventCardItem id={nextEvent.id} event={nextEvent} />
-          </Box>
+          </GridItem>
         )}
       </SimpleGrid>
-      <SimpleGrid columns={{ sm: 1, md: 2 }} columnGap={30} marginY="10">
-        <Box>
-          <MiniTable
-            title="Leaderboard"
-            columns={[
-              { Header: "Pos", accessor: "pos" },
-              {
-                Header: "Player",
-                Cell: (props) => (
-                  <Flex alignItems={"center"}>
-                    <Avatar src={props.row.original.img} size="sm" />
-                    <Text fontWeight={"600"} marginLeft={2}>
-                      {props.row.original.name}
-                    </Text>
-                  </Flex>
-                ),
-              },
-              { Header: "Total", accessor: "toPar" },
-              { Header: "Score", accessor: "today" },
-            ]}
-            data={currentEvent?.competitors || []}
-          />
-        </Box>
-        <Box>
-          <MiniTable
-            title="Posiciones"
-            columns={[
-              {
-                Header: "Usuario",
-                Cell: (props) => (
+      <SimpleGrid
+        columns={{ sm: 1, md: 2 }}
+        columnGap={{ sm: 0, md: 30 }}
+        marginY="10"
+      >
+        <MiniTable
+          title="Leaderboard"
+          columns={[
+            { Header: "Pos", accessor: "pos" },
+            {
+              Header: "Player",
+              Cell: (props) => (
+                <Flex alignItems={"center"}>
+                  <Avatar src={props.row.original.img} size="sm" />
                   <Text fontWeight={"600"} marginLeft={2}>
-                    {currentEvent.status !== "in" ? (
-                      `${props.row.original.firstName} ${props.row.original.lastName}`
-                    ) : (
-                      <Link
-                        to={`/events/${currentEvent.id}/user/${props.row.original.id}`}
-                      >
-                        {props.row.original.firstName}{" "}
-                        {props.row.original.lastName}
-                      </Link>
-                    )}
+                    {props.row.original.name}
                   </Text>
-                ),
-              },
-              { Header: "Puntos", accessor: "points" },
-            ]}
-            data={users}
-          />
-        </Box>
+                </Flex>
+              ),
+            },
+            { Header: "Total", accessor: "toPar" },
+            { Header: "Score", accessor: "today" },
+          ]}
+          data={currentEvent?.competitors || []}
+        />
+
+        <MiniTable
+          title="Posiciones"
+          columns={[
+            {
+              Header: "Usuario",
+              Cell: (props) => (
+                <Text fontWeight={"600"} marginLeft={2}>
+                  {currentEvent.status !== "in" ? (
+                    `${props.row.original.firstName} ${props.row.original.lastName}`
+                  ) : (
+                    <Link
+                      to={`/events/${currentEvent.id}/user/${props.row.original.id}`}
+                    >
+                      {props.row.original.firstName}{" "}
+                      {props.row.original.lastName}
+                    </Link>
+                  )}
+                </Text>
+              ),
+            },
+            { Header: "Puntos", accessor: "points" },
+          ]}
+          data={users}
+        />
       </SimpleGrid>
       <Text textAlign="center">Copyright @{new Date().getFullYear()}</Text>
     </SimpleSidebar>
