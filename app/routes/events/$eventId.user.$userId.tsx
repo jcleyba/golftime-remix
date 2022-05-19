@@ -1,26 +1,32 @@
 import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
-import type { LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useLoaderData, useSubmit } from "@remix-run/react";
+import { Form, useLoaderData, useParams, useSubmit } from "@remix-run/react";
 import keyBy from "lodash.keyby";
 import { useCallback, useState } from "react";
 import type { FoursomeType } from "~/components/Foursome";
 import { Foursome } from "~/components/Foursome";
 import { Leaderboard } from "~/components/Leaderboard";
 import { PlayerSelection } from "~/components/PlayersSelection";
+import { SearchBar } from "~/components/SearchBar";
 import SimpleSidebar from "~/components/Sidebar";
 import authenticator from "~/services/auth.server";
-import type { Bet } from "~/services/bet.server";
-import { currentBet } from "~/services/bet.server";
+import { currentBet, saveBet } from "~/services/bet.server";
 import EventManager from "~/services/events.server";
-import type { Tournament } from "~/types";
+import type { Competitor, Tournament } from "~/types";
+
+interface LoaderData {
+  tournament: Tournament;
+  liveBet: FoursomeType | null;
+}
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await authenticator.isAuthenticated(request, {
+  await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
-  const { eventId: tournamentId, userId } = params;
+  const tournamentId = params.eventId;
+  const userId = params.userId;
 
   if (!tournamentId || !userId) {
     return null;
@@ -28,12 +34,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const [tournament, liveBet] = await Promise.all([
     EventManager.fetchEventById(tournamentId),
-    currentBet(tournamentId, userId || user?.id),
+    currentBet(tournamentId, userId),
   ]);
 
   const positionsByPlayer = keyBy(tournament.competitors, "id");
 
-  return json<{ tournament: Tournament; liveBet: FoursomeType | null }>({
+  return json<LoaderData>({
     tournament: {
       ...tournament,
       competitors: tournament.competitors?.sort(
@@ -49,30 +55,55 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   });
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  const data = await request.formData();
+  const players = (await data.get("players")) as string;
+  const userId = (await data.get("userId")) as string;
+  const eventId = (await data.get("eventId")) as string;
+
+  await saveBet(eventId, userId, JSON.parse(players));
+
+  return null;
+};
+
 export default function SingleEvent() {
-  const { tournament, liveBet } = useLoaderData<{
-    tournament: Tournament;
-    liveBet: Bet | null;
-  }>();
-  const [course] = Object.keys(tournament.courses);
+  const { tournament, liveBet } = useLoaderData<LoaderData>();
   const [foursome, setFoursome] = useState<FoursomeType | {}>(liveBet || {});
+  const [competitors, setCompetitors] = useState<Competitor[]>(
+    tournament.competitors || []
+  );
   const submit = useSubmit();
+  const params = useParams();
+
+  const [course] = Object.keys(tournament.courses);
 
   const saveDate = useCallback(
     (foursome: FoursomeType) => {
-      let data: Record<string, string> = Object.keys(foursome).reduce(
-        (acc: Record<string, string>, item) => {
-          acc[item] = JSON.stringify(foursome[item]);
+      const formData = new FormData();
 
-          return acc;
-        },
-        {}
-      );
+      formData.append("players", JSON.stringify(Object.values(foursome)));
+      formData.append("eventId", tournament.id);
+      formData.append("userId", params.userId || "");
 
       setFoursome(foursome);
-      submit(data, { method: "post", action: `/events/${tournament.id}` });
+      setCompetitors(tournament.competitors);
+      submit(formData, {
+        method: "post",
+        action: `/events/${tournament.id}/user/${params.userId}`,
+      });
     },
-    [setFoursome, submit, tournament]
+    [setFoursome, submit, tournament, params.userId]
+  );
+
+  const filter = useCallback(
+    (e) => {
+      setCompetitors(
+        tournament.competitors?.filter((comp) =>
+          comp.name.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      );
+    },
+    [setCompetitors, tournament]
   );
 
   return (
@@ -105,8 +136,11 @@ export default function SingleEvent() {
           <Leaderboard tournament={tournament} />
         ) : tournament.competitors ? (
           <Form>
+            <Box marginY="5">
+              <SearchBar filter={filter} variant="outline" />
+            </Box>
             <PlayerSelection
-              tournament={tournament}
+              competitors={competitors}
               onSelect={saveDate}
               selection={foursome}
             />

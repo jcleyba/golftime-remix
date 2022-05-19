@@ -3,7 +3,20 @@ import { BetEntity } from "../entities/Bet";
 import { query as sql } from "db";
 import chunk from "lodash.chunk";
 import type { User } from "./session.server";
-//import { DocumentClient } from "~/repositories/table";
+
+export const createNewUser = async (
+  user: User & { password: string; verified: boolean }
+) => {
+  const { Items } = await UserEntity.query(user.email, {
+    eq: "User#Current",
+    index: "email-sk-index",
+  });
+
+  if (Items[0]) {
+    return null;
+  }
+  return await UserEntity.put({ ...user, sk: "User#Current" });
+};
 
 export const listUsers = async () => {
   const { Items } = await UserEntity.query("User#Current", {
@@ -11,18 +24,16 @@ export const listUsers = async () => {
     index: "sk-points-index",
   });
 
-  return Items.map(
-    ({ firstName, lastName, points, pk: id }: User & { pk: string }) => ({
-      id,
-      firstName,
-      lastName,
-      points: points?.toFixed(2),
-    })
-  );
+  return Items.map(({ firstName, lastName, points, id }: User) => ({
+    id,
+    firstName,
+    lastName,
+    points: points?.toFixed(2),
+  }));
 };
 
 export const createUser = async () => {
-  /* const { rows, rowCount } = await sql(`select * from bets`, []);
+  /*  const { rows, rowCount } = await sql(`select * from bets`, []);
 
   const chunks = chunk(rows, 20);
 
@@ -95,10 +106,10 @@ export const createUser = async () => {
         createdAt,
         id,
       } = item;
-      var params = {
-        TableName: "golftime",
-        Item: {
-          pk: id.toString(),
+
+      await promiseArray.push(
+        UserEntity.put({
+          id: id.toString(),
           sk: "User#Current",
           password,
           firstName,
@@ -107,16 +118,14 @@ export const createUser = async () => {
           verified,
           token,
           createdAt,
-          points: map[id.toString()],
-        },
-      };
-
-      await promiseArray.push(DocumentClient.put(params).promise());
+          points: 0,
+        })
+      );
     }
 
     await Promise.all(promiseArray);
   } */
-  /* const resp = await BetEntity.scan({
+  /*   const resp = await BetEntity.scan({
     filters: [
       {
         attr: "season",

@@ -1,10 +1,9 @@
-import { query as sql } from "db";
+import bcrypt from "bcrypt";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
+import { UserEntity } from "~/entities/User";
 import type { User } from "./session.server";
 import { sessionStorage } from "./session.server";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 // Create an instance of the authenticator, pass a Type, User,  with what
 // strategies will return and will store in the session
@@ -14,9 +13,9 @@ const authenticator = new Authenticator<User | null>(sessionStorage, {
 });
 
 authenticator.use(
-  new FormStrategy(async ({ form }) => {
-    let email = form.get("email") as string;
-    let password = form.get("password") as string;
+  new FormStrategy(async (req) => {
+    let email = req.form.get("email") as string;
+    let password = req.form.get("password") as string;
 
     if (!email || email?.length === 0)
       throw new AuthorizationError("Bad Credentials: Email is required");
@@ -31,16 +30,14 @@ authenticator.use(
       );
 
     const {
-      rows: { 0: user },
-    } = await sql(`select * from users where email = $1;`, [
-      email.toLocaleLowerCase(),
-    ]);
+      Items: { 0: user },
+    } = await UserEntity.query(email, {
+      index: "email-sk-index",
+    });
 
     if (user) {
-      const passwordMatch = await bcrypt.compare(
-        password.toLocaleLowerCase(),
-        user.password
-      );
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
       if (!passwordMatch) {
         throw new AuthorizationError("Usuario o contraseña incorrectos");
       }

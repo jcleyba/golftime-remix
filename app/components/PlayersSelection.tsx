@@ -1,16 +1,16 @@
 import { Avatar, Button, Flex, Icon, SimpleGrid, Text } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { IoAddCircle, IoRemoveCircle } from "react-icons/io5";
-import type { Competitor, Tournament } from "~/types";
+import type { Competitor } from "~/types";
 import type { FoursomeType } from "./Foursome";
 
 export const PlayerSelection = ({
   onSelect,
-  tournament,
+  competitors,
   selection,
 }: {
   onSelect: (player: FoursomeType) => void;
-  tournament: Tournament;
+  competitors: Competitor[];
   selection: FoursomeType;
 }) => {
   const addPlayer = useCallback(
@@ -38,7 +38,7 @@ export const PlayerSelection = ({
 
   return (
     <SimpleGrid minChildWidth="120px" spacing="40px">
-      {tournament.competitors.map((player: Competitor) => {
+      {competitors.map((player: Competitor) => {
         return (
           <Flex
             flexDir="column"
@@ -64,6 +64,7 @@ export const PlayerSelection = ({
                 onClick={() => addPlayer(player)}
                 leftIcon={<Icon as={IoAddCircle} />}
                 colorScheme="green"
+                disabled={Object.keys(selection).length === 4}
               >
                 Agregar
               </Button>

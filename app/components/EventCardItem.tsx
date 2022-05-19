@@ -15,9 +15,11 @@ import type { ScheduledEvent } from "~/types";
 export default function EventCardItem({
   event,
   id,
+  userId = "",
 }: {
   event: ScheduledEvent;
   id: string;
+  userId?: string;
 }) {
   const badgeBg = useColorModeValue("gray.50", "gray.800");
 
@@ -70,7 +72,7 @@ export default function EventCardItem({
               bg: "green.500",
             }}
             as={Link}
-            to={`/events/${id}`}
+            to={`/events/${id}/user/${userId}`}
           >
             Leaderboard
           </Button>

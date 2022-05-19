@@ -2,10 +2,10 @@ import { Entity } from "dynamodb-toolbox";
 import { MonoTable } from "~/repositories/table";
 
 export const BetEntity = new Entity({
-  name: "User",
+  name: "Bet",
   attributes: {
-    id: { partitionKey: true }, // flag as partitionKey
-    sk: { sortKey: true }, // flag as sortKey and mark hidden
+    id: { partitionKey: true },
+    sk: { sortKey: true },
     result: { type: "number" },
     players: { type: "list" },
     season: { type: "number" },

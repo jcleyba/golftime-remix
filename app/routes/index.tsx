@@ -1,12 +1,11 @@
 import {
   Avatar,
-  Box,
   Flex,
   GridItem,
   Heading,
   SimpleGrid,
   Text,
-  useColorModeValue,
+  useColorModeValue
 } from "@chakra-ui/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -118,7 +117,7 @@ export default function DashboardPage() {
               {lastWinner.user?.firstName} {lastWinner.user?.lastName}
             </Text>
             <Text fontSize={15} fontWeight="bold">
-              {lastWinner.user?.points} Puntos
+              {lastWinner.points} Puntos
             </Text>
           </Flex>
         )}

@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
+import { Form, useLoaderData, useTransition } from "@remix-run/react";
 import authenticator from "~/services/auth.server";
 import { sessionStorage } from "~/services/session.server";
 import Logo from "../assets/golftime.svg";
@@ -34,15 +34,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request, context }) => {
-  // call my authenticator
-  const resp = await authenticator.authenticate("form", request, {
-    successRedirect: "/",
-    failureRedirect: "/login",
-    throwOnError: true,
-    context,
-  });
-
-  return resp;
+  return null;
 };
 
 export default function LoginPage() {
@@ -67,10 +59,9 @@ export default function LoginPage() {
         <Stack align={"center"}>
           <Image src={Logo} maxW={275} marginX={5} />
         </Stack>
-
         <Stack align={"center"}>
           <Text fontSize={"lg"} color={"gray.600"}>
-            Adelante y suerte! 🏌️‍♂️🏌️‍♀️
+            Ingrese su email para recuperar su contraseña
           </Text>
         </Stack>
         <Form method="post">
@@ -91,23 +82,7 @@ export default function LoginPage() {
                 <FormLabel>Email</FormLabel>
                 <Input type="email" name="email" />
               </FormControl>
-              <FormControl id="password">
-                <FormLabel>Contraseña</FormLabel>
-                <Input type="password" name="password" />
-              </FormControl>
               <Stack spacing={10}>
-                <Stack
-                  direction={{ base: "column", sm: "row" }}
-                  align={"start"}
-                  justify={"space-between"}
-                >
-                  <Link to="/sign-up" color={"green.400"}>
-                    Registrarme
-                  </Link>
-                  <Link to="/forgot-password" color={"green.400"}>
-                    Olvidé mi contraseña
-                  </Link>
-                </Stack>
                 <Button
                   bg={"green.400"}
                   color={"white"}
@@ -117,7 +92,7 @@ export default function LoginPage() {
                   type="submit"
                   isLoading={!!transition.submission}
                 >
-                  Iniciar Sesión
+                  Enviar
                 </Button>
               </Stack>
             </Stack>

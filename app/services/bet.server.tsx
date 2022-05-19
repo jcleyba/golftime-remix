@@ -7,6 +7,7 @@ export type Bet = {
     id: string;
     img: string;
     name?: string;
+    position?: string;
   }[];
 };
 
@@ -31,4 +32,21 @@ export const currentBet = async (eventId?: string, userId?: string) => {
   });
 
   return Items[0] ?? null;
+};
+
+export const saveBet = async (
+  eventId: string,
+  userId: string,
+  players: Bet["players"]
+) => {
+  if (!eventId || !userId) return null;
+
+  const result = await BetEntity.put({
+    id: eventId,
+    sk: userId,
+    season: process.env.CURRENT_SEASON,
+    players,
+  });
+
+  return result;
 };

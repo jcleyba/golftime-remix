@@ -37,4 +37,4 @@ If you're used to using the `vercel dev` command provided by [Vercel CLI](https:
 
 - sign up
 - forgot pass
-- create GSI for user email
+- cron jobs
