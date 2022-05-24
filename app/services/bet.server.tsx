@@ -1,4 +1,7 @@
+import { UserEntity } from "~/entities/User";
+import type { Competitor } from "~/types";
 import { BetEntity } from "../entities/Bet";
+import EventManager from "./events.server";
 
 export type Bet = {
   sk: string;
@@ -49,4 +52,72 @@ export const saveBet = async (
   });
 
   return result;
+};
+
+export const bulkUpdateResults = async () => {
+  const lastEvent = await EventManager.getLastActiveEvent();
+
+  if (!lastEvent?.id) {
+    return Error("Invalid request. Wrong eventId");
+  }
+
+  const [{ Items: bets }, leaderboard] = await Promise.all([
+    BetEntity.query(lastEvent.id),
+    EventManager.fetchEventById(lastEvent.id),
+  ]);
+
+  if (!bets?.length || !leaderboard?.competitors) {
+    return Error("No bets found");
+  }
+
+  const playersMap = mapPlayers(leaderboard.competitors);
+
+  let promiseArray: Promise<any>[] = [];
+
+  bets.forEach((bet: Bet) => {
+    const points = calcPoints(bet.players, playersMap);
+    promiseArray.push(
+      UserEntity.update(
+        {
+          id: bet.sk,
+          sk: "User#Current",
+          points: { $add: points },
+          lastUpdatedEvent: lastEvent.id,
+        },
+        {
+          conditions: {
+            attr: "lastUpdatedEvent",
+            ne: lastEvent.id,
+          },
+        }
+      )
+    );
+  });
+
+  await Promise.all(promiseArray).catch(() => {
+    console.log("Already updated");
+  });
+};
+
+const mapPlayers = (competitors: Competitor[]) => {
+  return competitors.reduce(
+    (acc: { [key: string]: number }, comp: Competitor) => {
+      const result =
+        comp.pos === "-" ? 0 : (1 / parseInt(comp.pos.replace("T", ""))) * 100;
+      acc[comp.id] = result;
+
+      return acc;
+    },
+    {}
+  );
+};
+
+const calcPoints = (
+  players: Bet["players"],
+  map: { [key: string]: number }
+) => {
+  return players.reduce((acc: number, pl: { id: string }) => {
+    acc += map[pl.id];
+    return acc;
+  }, 0);
 };

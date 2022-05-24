@@ -3,6 +3,9 @@ import type { ScheduledEvent, Tournament } from "~/types";
 import isThisWeek from "date-fns/isThisWeek";
 import isSameWeek from "date-fns/isSameWeek";
 import isAfter from "date-fns/isAfter";
+import { sendTeeTimes } from "./email.server";
+import { UserEntity } from "~/entities/User";
+import { hasMailBeenSent } from "./imap.server";
 
 // Singleton to access events
 class EventManager {
@@ -51,7 +54,7 @@ class EventManager {
     return this.events;
   }
 
-  async getActiveEvent() {
+  async getActiveEvent(): Promise<ScheduledEvent | undefined | null> {
     try {
       const eventList = await this.getEvents();
       if (!eventList?.length) return null;
@@ -63,11 +66,10 @@ class EventManager {
       );
     } catch (e) {
       console.error(e);
-      return e;
     }
   }
 
-  async getNextActiveEvent() {
+  async getNextActiveEvent(): Promise<ScheduledEvent | undefined | null> {
     try {
       const eventList = await this.getEvents();
       if (!eventList?.length) return null;
@@ -134,6 +136,31 @@ class EventManager {
 
     return leaderboard as Tournament;
   };
+
+  async verifyTeeTimes() {
+    try {
+      const mailSent = await hasMailBeenSent();
+      const nextEvent = await this.getActiveEvent();
+      console.debug("Mail sent: ", mailSent);
+
+      if (!mailSent && nextEvent?.status === "pre") {
+        const next = await this.fetchEventById(nextEvent.id);
+        if (next?.competitors?.length) {
+          const { Items: rows } = await UserEntity.query("User#Current");
+
+          await sendTeeTimes(
+            rows.map((row: { email: string }) => row.email),
+            nextEvent.id,
+            next.name
+          );
+        }
+      }
+
+      return true;
+    } catch (e) {
+      return e;
+    }
+  }
 }
 
 export default new EventManager();

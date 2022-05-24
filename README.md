@@ -35,6 +35,5 @@ If you're used to using the `vercel dev` command provided by [Vercel CLI](https:
 
 ### TODOS
 
-- sign up
 - forgot pass
-- cron jobs
+- probar cron jobs

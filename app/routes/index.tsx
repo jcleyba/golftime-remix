@@ -5,7 +5,7 @@ import {
   Heading,
   SimpleGrid,
   Text,
-  useColorModeValue
+  useColorModeValue,
 } from "@chakra-ui/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -20,13 +20,14 @@ import type { Bet } from "~/services/bet.server";
 import { currentBet, lastEventBets } from "~/services/bet.server";
 import EventsManager from "~/services/events.server";
 import type { User } from "~/services/session.server";
-import { listUsers } from "~/services/user.server";
+import { createUser, listUsers } from "~/services/user.server";
 import type { ScheduledEvent, Tournament } from "~/types";
 
 export let loader: LoaderFunction = async ({ request }) => {
   const auth = authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
+  await createUser();
 
   let [currentUser, users, currentEvent, nextEvent, lastEvent] =
     await Promise.all([
@@ -51,7 +52,7 @@ export let loader: LoaderFunction = async ({ request }) => {
   };
 
   const lastWinner = {
-    points: lastEventResults[0]?.result,
+    points: lastEventResults?.[0]?.result,
     user: users.find((u: User) => lastEventResults[0].userId === u.id),
   };
 
