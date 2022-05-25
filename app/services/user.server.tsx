@@ -15,7 +15,8 @@ export const createNewUser = async (
   if (Items[0]) {
     return null;
   }
-  return await UserEntity.put({ ...user, sk: "User#Current" });
+
+  return await UserEntity.put({ ...user, sk: "User#Current", verified: true });
 };
 
 export const listUsers = async () => {
@@ -24,16 +25,45 @@ export const listUsers = async () => {
     index: "sk-points-index",
   });
 
-  return Items.map(({ firstName, lastName, points, id }: User) => ({
-    id,
-    firstName,
-    lastName,
-    points: points?.toFixed(2),
-  }));
+  return Items.map(
+    ({ firstName, lastName, points, id, email, verified }: User) => ({
+      id,
+      firstName,
+      lastName,
+      points: points?.toFixed(2),
+      email,
+      verified,
+    })
+  );
 };
 
-export const createUser = async () => {
-  /*  const { rows, rowCount } = await sql(`select * from bets`, []);
+const getUserByEmail = async (email: string) => {
+  const { Items } = await UserEntity.query(email, {
+    eq: "User#Current",
+    index: "email-sk-index",
+  });
+
+  return Items[0] || null;
+};
+
+export const updateUserToken = async (email: string, token: string) => {
+  const user = await getUserByEmail(email);
+
+  return await UserEntity.update({ ...user, sk: "User#Current", token });
+};
+
+export const updateUserPassword = async (email: string, password: string) => {
+  const user = await getUserByEmail(email);
+
+  return await UserEntity.update({
+    ...user,
+    sk: "User#Current",
+    password,
+    token: null,
+  });
+};
+
+/*  const { rows, rowCount } = await sql(`select * from bets`, []);
 
   const chunks = chunk(rows, 20);
 
@@ -68,7 +98,7 @@ export const createUser = async () => {
     }
     await Promise.all(promiseArray);
   } */
-  /* const { rows, rowCount } = await sql(`select * from users`, []);
+/* const { rows, rowCount } = await sql(`select * from users`, []);
 
   const chunks = chunk(rows, 20);
 
@@ -125,7 +155,7 @@ export const createUser = async () => {
 
     await Promise.all(promiseArray);
   } */
-  /*   const resp = await BetEntity.scan({
+/*   const resp = await BetEntity.scan({
     filters: [
       {
         attr: "season",
@@ -150,4 +180,3 @@ export const createUser = async () => {
   await Promise.all(promiseArray);
 
   console.debug("$$$", map); */
-};

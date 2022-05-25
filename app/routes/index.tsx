@@ -20,14 +20,13 @@ import type { Bet } from "~/services/bet.server";
 import { currentBet, lastEventBets } from "~/services/bet.server";
 import EventsManager from "~/services/events.server";
 import type { User } from "~/services/session.server";
-import { createUser, listUsers } from "~/services/user.server";
+import { listUsers } from "~/services/user.server";
 import type { ScheduledEvent, Tournament } from "~/types";
 
 export let loader: LoaderFunction = async ({ request }) => {
   const auth = authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
-  await createUser();
 
   let [currentUser, users, currentEvent, nextEvent, lastEvent] =
     await Promise.all([
@@ -57,12 +56,14 @@ export let loader: LoaderFunction = async ({ request }) => {
   };
 
   return json<{
+    currentUser: User | null;
     currentEvent: Tournament | null;
     users: User[];
     nextEvent: ScheduledEvent | null | undefined;
     lastWinner: { points: number; user: User };
     liveBet: Bet | null;
   }>({
+    currentUser,
     currentEvent,
     users,
     nextEvent,
@@ -76,8 +77,9 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function DashboardPage() {
-  const { currentEvent, users, nextEvent, liveBet, lastWinner } =
+  const { currentUser, currentEvent, users, nextEvent, liveBet, lastWinner } =
     useLoaderData<{
+      currentUser: User | null;
       currentEvent: Tournament;
       users: User[];
       nextEvent: ScheduledEvent | null | undefined;
@@ -96,7 +98,10 @@ export default function DashboardPage() {
     <SimpleSidebar>
       <SimpleGrid
         columnGap={{ sm: 0, md: 10 }}
-        templateColumns={{ base: "1fr", md: "1fr 2fr 1fr" }}
+        templateColumns={{
+          base: "1fr",
+          md: liveBet ? "1fr 2fr 1fr" : "1fr 1fr",
+        }}
       >
         {lastWinner && (
           <Flex
@@ -140,8 +145,11 @@ export default function DashboardPage() {
         )}
         {nextEvent && (
           <GridItem colSpan={1} minH="100%">
-            <Text fontWeight="bold">Próximamente...</Text>
-            <EventCardItem id={nextEvent.id} event={nextEvent} />
+            <EventCardItem
+              id={nextEvent.id}
+              event={nextEvent}
+              userId={currentUser?.id}
+            />
           </GridItem>
         )}
       </SimpleGrid>
@@ -151,7 +159,14 @@ export default function DashboardPage() {
         marginY="10"
       >
         <MiniTable
-          title="Leaderboard"
+          title={
+            <Link
+              style={{ textDecoration: "underline" }}
+              to={`/events/${currentEvent.id}/user/${currentUser?.id}`}
+            >
+              {currentEvent.name}
+            </Link>
+          }
           columns={[
             { Header: "Pos", accessor: "pos" },
             {

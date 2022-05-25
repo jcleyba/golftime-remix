@@ -23,4 +23,5 @@ export type User = {
   lastName: string;
   email: string;
   points?: number;
+  verified?: boolean;
 };

@@ -55,28 +55,30 @@ export default function EventCardItem({
           )}
         </Stack>
 
-        <Stack mt={8} direction={"row"} spacing={4}>
-          <Button
-            flex={1}
-            fontSize={"sm"}
-            rounded={"full"}
-            bg={"green.400"}
-            color={"white"}
-            boxShadow={
-              "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"
-            }
-            _hover={{
-              bg: "green.500",
-            }}
-            _focus={{
-              bg: "green.500",
-            }}
-            as={Link}
-            to={`/events/${id}/user/${userId}`}
-          >
-            Leaderboard
-          </Button>
-        </Stack>
+        {userId && (
+          <Stack mt={8} direction={"row"} spacing={4}>
+            <Button
+              flex={1}
+              fontSize={"sm"}
+              rounded={"full"}
+              bg={"green.400"}
+              color={"white"}
+              boxShadow={
+                "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"
+              }
+              _hover={{
+                bg: "green.500",
+              }}
+              _focus={{
+                bg: "green.500",
+              }}
+              as={Link}
+              to={`/events/${id}/user/${userId}`}
+            >
+              Leaderboard
+            </Button>
+          </Stack>
+        )}
       </Box>
     </Center>
   );

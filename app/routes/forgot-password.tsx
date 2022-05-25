@@ -13,11 +13,15 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction} from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useTransition } from "@remix-run/react";
+import jwt from "jsonwebtoken";
 import authenticator from "~/services/auth.server";
+import { sendPassRecovery } from "~/services/email.server";
 import { sessionStorage } from "~/services/session.server";
+import { updateUserToken } from "~/services/user.server";
 import Logo from "../assets/golftime.svg";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -34,6 +38,20 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request, context }) => {
+  const formData = await request.formData();
+  const email = (await formData.get("email")) as string;
+
+  if (!email) {
+    throw Error("Email invalid");
+  }
+  const token = jwt.sign({ email }, process.env.PRIVATE_KEY || "private", {
+    expiresIn: "1h",
+  });
+  const user = await updateUserToken(email, token);
+  if (user) {
+    await sendPassRecovery(email, token);
+    return redirect("/");
+  }
   return null;
 };
 

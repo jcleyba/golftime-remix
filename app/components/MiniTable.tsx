@@ -20,7 +20,7 @@ export function MiniTable({
   columns,
   data,
 }: {
-  title?: string;
+  title?: string | React.ReactNode;
   columns: Column<any>[];
   data: any[];
 }) {
