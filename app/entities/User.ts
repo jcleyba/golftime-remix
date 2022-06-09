@@ -15,6 +15,8 @@ export const UserEntity = new Entity({
     verified: { type: "boolean" },
     createdAt: { type: "string" },
     token: { type: "string" },
+    gsi1pk: { type: "string" },
+    legacyId: { type: "string" },
   },
 
   // Assign it to our table

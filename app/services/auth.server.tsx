@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { UserEntity } from "~/entities/User";
-import type { User } from "./session.server";
+import type { User } from "~/types";
 import { sessionStorage } from "./session.server";
 
 // Create an instance of the authenticator, pass a Type, User,  with what
@@ -29,12 +29,8 @@ authenticator.use(
         "Bad Credentials: Password must be a string"
       );
 
-    const {
-      Items: { 0: user },
-    } = await UserEntity.query(email, {
-      index: "email-sk-index",
-    });
-
+    const { Item: user } = await UserEntity.get({ id: email, sk: email });
+    
     if (user) {
       const passwordMatch = await bcrypt.compare(password, user.password);
 

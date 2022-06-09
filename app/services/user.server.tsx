@@ -2,62 +2,49 @@ import { UserEntity } from "../entities/User";
 import { BetEntity } from "../entities/Bet";
 import { query as sql } from "db";
 import chunk from "lodash.chunk";
-import type { User } from "./session.server";
+import crypto from "crypto";
+import type { User } from "~/types";
 
 export const createNewUser = async (
   user: User & { password: string; verified: boolean }
 ) => {
-  const { Items } = await UserEntity.query(user.email, {
-    eq: "User#Current",
-    index: "email-sk-index",
+  return await UserEntity.put({
+    ...user,
+    id: user.email,
+    sk: user.email,
+    legacyId: crypto?.randomUUID(),
+    gsi1pk: "User#Current",
+    verified: true,
   });
-
-  if (Items[0]) {
-    return null;
-  }
-
-  return await UserEntity.put({ ...user, sk: "User#Current", verified: true });
 };
 
 export const listUsers = async () => {
   const { Items } = await UserEntity.query("User#Current", {
     reverse: true,
-    index: "sk-points-index",
+    index: "gsi1pk-points-index",
   });
 
   return Items.map(
-    ({ firstName, lastName, points, id, email, verified }: User) => ({
+    ({ firstName, lastName, points, id, email, verified, legacyId }: User) => ({
       id,
       firstName,
       lastName,
       points: points?.toFixed(2),
       email,
       verified,
+      legacyId,
     })
   );
 };
 
-const getUserByEmail = async (email: string) => {
-  const { Items } = await UserEntity.query(email, {
-    eq: "User#Current",
-    index: "email-sk-index",
-  });
-
-  return Items[0] || null;
-};
-
 export const updateUserToken = async (email: string, token: string) => {
-  const user = await getUserByEmail(email);
-
-  return await UserEntity.update({ ...user, sk: "User#Current", token });
+  return await UserEntity.update({ id: email, sk: email, token });
 };
 
 export const updateUserPassword = async (email: string, password: string) => {
-  const user = await getUserByEmail(email);
-
   return await UserEntity.update({
-    ...user,
-    sk: "User#Current",
+    id: email,
+    sk: email,
     password,
     token: null,
   });
@@ -139,8 +126,9 @@ export const updateUserPassword = async (email: string, password: string) => {
 
       await promiseArray.push(
         UserEntity.put({
-          id: id.toString(),
-          sk: "User#Current",
+          id: email,
+          sk: email,
+          gsi1pk: "User#Current",
           password,
           firstName,
           lastName,
@@ -148,7 +136,8 @@ export const updateUserPassword = async (email: string, password: string) => {
           verified,
           token,
           createdAt,
-          points: 0,
+          legacyId: id
+           oints: map[id],
         })
       );
     }

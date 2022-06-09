@@ -19,9 +19,9 @@ import authenticator from "~/services/auth.server";
 import type { Bet } from "~/services/bet.server";
 import { currentBet, lastEventBets } from "~/services/bet.server";
 import EventsManager from "~/services/events.server";
-import type { User } from "~/services/session.server";
+import type { User } from "~/types";
 import { listUsers } from "~/services/user.server";
-import type { ScheduledEvent, Tournament } from "~/types";
+import type { Competitor, ScheduledEvent, Tournament } from "~/types";
 
 export let loader: LoaderFunction = async ({ request }) => {
   const auth = authenticator.isAuthenticated(request, {
@@ -52,7 +52,7 @@ export let loader: LoaderFunction = async ({ request }) => {
 
   const lastWinner = {
     points: lastEventResults?.[0]?.result,
-    user: users.find((u: User) => lastEventResults[0].userId === u.id),
+    user: users.find((u: User) => lastEventResults[0]?.userId === u.id),
   };
 
   return json<{
@@ -88,11 +88,13 @@ export default function DashboardPage() {
     }>();
   const colorValue = useColorModeValue("white", "gray.900");
   const positionsByPlayer = keyBy(currentEvent.competitors, "id");
-  const foursome = (liveBet?.players || []).reduce((acc, pl) => {
-    //@ts-ignore
-    acc[pl.id] = positionsByPlayer[pl.id];
-    return acc;
-  }, {});
+  const foursome = (liveBet?.players || []).reduce(
+    (acc: Record<string, Competitor>, pl) => {
+      acc[pl.id] = positionsByPlayer[pl.id];
+      return acc;
+    },
+    {}
+  );
 
   return (
     <SimpleSidebar>
@@ -197,7 +199,7 @@ export default function DashboardPage() {
                     `${props.row.original.firstName} ${props.row.original.lastName}`
                   ) : (
                     <Link
-                      to={`/events/${currentEvent.id}/user/${props.row.original.id}`}
+                      to={`/events/${currentEvent.id}/user/${props.row.original.legacyId}`}
                     >
                       {props.row.original.firstName}{" "}
                       {props.row.original.lastName}

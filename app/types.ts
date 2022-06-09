@@ -91,3 +91,13 @@ export interface Tournament {
   athleteAirings: any[];
   courses: Course;
 }
+
+export type User = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  points?: number;
+  verified?: boolean;
+  legacyId?: string;
+};

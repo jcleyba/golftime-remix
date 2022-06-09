@@ -17,7 +17,6 @@ import type { ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useTransition } from "@remix-run/react";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 import authenticator from "~/services/auth.server";
 import { createNewUser } from "~/services/user.server";
 import Logo from "../assets/golftime.svg";
@@ -51,7 +50,7 @@ export const action: ActionFunction = async ({ request, context }) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const response = await createNewUser({
-    id: crypto?.randomUUID(),
+    id: "",
     firstName,
     lastName,
     email,

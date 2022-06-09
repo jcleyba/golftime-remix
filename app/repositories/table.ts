@@ -15,7 +15,6 @@ export const MonoTable = new Table({
   // Add the DocumentClient
   DocumentClient,
   indexes: {
-    "sk-points-index": { partitionKey: "sk", sortKey: "points" },
-    "email-sk-index": { partitionKey: "email", sortKey: "sk" },
+    "gsi1pk-points-index": { partitionKey: "gsi1pk", sortKey: "points" },
   },
 });
