@@ -17,7 +17,12 @@ import type { ReactNode, ReactText } from "react";
 import React from "react";
 import type { IconType } from "react-icons";
 import { FiMenu } from "react-icons/fi";
-import { IoCalendar, IoHome } from "react-icons/io5";
+import {
+  IoCalendar,
+  IoHome,
+  IoPeopleCircleOutline,
+  IoHelpCircleOutline,
+} from "react-icons/io5";
 import Logo from "../assets/golftime.svg";
 
 interface LinkItemProps {
@@ -28,7 +33,8 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
   { name: "Inicio", icon: IoHome, href: "/" },
   { name: "Torneos", icon: IoCalendar, href: "/events" },
-  { name: "Como jugar", icon: IoCalendar, href: "#" },
+  { name: "Grupos", icon: IoPeopleCircleOutline, href: "/groups" },
+  { name: "Como jugar", icon: IoHelpCircleOutline, href: "#" },
 ];
 
 export default function SimpleSidebar({ children }: { children: ReactNode }) {

@@ -4,6 +4,7 @@ import { query as sql } from "db";
 import chunk from "lodash.chunk";
 import crypto from "crypto";
 import type { User } from "~/types";
+import { MonoTable } from "~/repositories/table";
 
 export const createNewUser = async (
   user: User & { password: string; verified: boolean }
@@ -48,6 +49,21 @@ export const updateUserPassword = async (email: string, password: string) => {
     password,
     token: null,
   });
+};
+
+export const getUsersByEmail = async (emails: string[]) => {
+  const { Responses } = await MonoTable.batchGet(
+    emails.map((email) => UserEntity.getBatch({ id: email, sk: email }))
+  );
+
+  return (Responses?.golftime || []).map(
+    ({ email, firstName, lastName, points }: User) => ({
+      email,
+      firstName,
+      lastName,
+      points: points?.toFixed(2),
+    })
+  );
 };
 
 /*  const { rows, rowCount } = await sql(`select * from bets`, []);
