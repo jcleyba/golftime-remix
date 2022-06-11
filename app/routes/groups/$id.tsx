@@ -107,8 +107,6 @@ export default function Group() {
     }
   }, [actionData, reset]);
 
-  console.debug("$$$", foundUsers);
-
   return (
     <SimpleSidebar>
       <Heading>{groupName}</Heading>
