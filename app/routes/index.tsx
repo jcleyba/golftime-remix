@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Button,
   Flex,
   GridItem,
   Heading,
@@ -22,6 +23,15 @@ import EventsManager from "~/services/events.server";
 import type { User } from "~/types";
 import { listUsers } from "~/services/user.server";
 import type { Competitor, ScheduledEvent, Tournament } from "~/types";
+
+interface LoaderData {
+  currentUser: User | null;
+  currentEvent: Tournament;
+  users: User[];
+  nextEvent: ScheduledEvent | null | undefined;
+  lastWinner: { points: number; user: User };
+  liveBet: Bet | null;
+}
 
 export let loader: LoaderFunction = async ({ request }) => {
   const auth = authenticator.isAuthenticated(request, {
@@ -55,14 +65,7 @@ export let loader: LoaderFunction = async ({ request }) => {
     user: users.find((u: User) => lastEventResults[0]?.userId === u.id),
   };
 
-  return json<{
-    currentUser: User | null;
-    currentEvent: Tournament | null;
-    users: User[];
-    nextEvent: ScheduledEvent | null | undefined;
-    lastWinner: { points: number; user: User };
-    liveBet: Bet | null;
-  }>({
+  return json<LoaderData>({
     currentUser,
     currentEvent,
     users,
@@ -78,16 +81,11 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function DashboardPage() {
   const { currentUser, currentEvent, users, nextEvent, liveBet, lastWinner } =
-    useLoaderData<{
-      currentUser: User | null;
-      currentEvent: Tournament;
-      users: User[];
-      nextEvent: ScheduledEvent | null | undefined;
-      lastWinner: { points: number; user: User };
-      liveBet: Bet | null;
-    }>();
+    useLoaderData<LoaderData>();
   const colorValue = useColorModeValue("white", "gray.900");
-  const positionsByPlayer = keyBy(currentEvent.competitors, "id");
+  const { id: currentEventId, status, name, competitors } = currentEvent;
+
+  const positionsByPlayer = keyBy(competitors, "id");
   const foursome = (liveBet?.players || []).reduce(
     (acc: Record<string, Competitor>, pl) => {
       acc[pl.id] = positionsByPlayer[pl.id];
@@ -162,22 +160,32 @@ export default function DashboardPage() {
       >
         <MiniTable
           title={
-            <Link
-              style={{ textDecoration: "underline" }}
-              to={`/events/${currentEvent.id}/user/${currentUser?.id}`}
-            >
-              {currentEvent.name}
-            </Link>
+            <Flex alignItems="center" justifyContent="space-between">
+              <Text>{name}</Text>
+              <Button
+                bg={"green.400"}
+                color={"white"}
+                _hover={{
+                  bg: "green.500",
+                }}
+                as={Link}
+                to={`/events/${currentEventId}/user/${currentUser?.legacyId}`}
+              >
+                {status === "pre" && competitors.length
+                  ? "Elegir jugadores"
+                  : "Ver Torneo"}
+              </Button>
+            </Flex>
           }
           columns={[
             { Header: "Pos", accessor: "pos" },
             {
               Header: "Player",
-              Cell: (props) => (
+              Cell: ({ row }) => (
                 <Flex alignItems={"center"}>
-                  <Avatar src={props.row.original.img} size="sm" />
+                  <Avatar src={row.original.img} size="sm" />
                   <Text fontWeight={"600"} marginLeft={2}>
-                    {props.row.original.name}
+                    {row.original.name}
                   </Text>
                 </Flex>
               ),
@@ -185,7 +193,7 @@ export default function DashboardPage() {
             { Header: "Total", accessor: "toPar" },
             { Header: "Score", accessor: "today" },
           ]}
-          data={currentEvent?.competitors || []}
+          data={competitors || []}
         />
 
         <MiniTable
@@ -193,16 +201,15 @@ export default function DashboardPage() {
           columns={[
             {
               Header: "Usuario",
-              Cell: (props) => (
+              Cell: ({ row }) => (
                 <Text fontWeight={"600"} marginLeft={2}>
-                  {currentEvent.status !== "in" ? (
-                    `${props.row.original.firstName} ${props.row.original.lastName}`
+                  {status !== "in" ? (
+                    `${row.original.firstName} ${row.original.lastName}`
                   ) : (
                     <Link
-                      to={`/events/${currentEvent.id}/user/${props.row.original.legacyId}`}
+                      to={`/events/${currentEventId}/user/${row.original.legacyId}`}
                     >
-                      {props.row.original.firstName}{" "}
-                      {props.row.original.lastName}
+                      {row.original.firstName} {row.original.lastName}
                     </Link>
                   )}
                 </Text>

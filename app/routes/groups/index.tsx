@@ -83,7 +83,13 @@ export default function MyGroups() {
           </Flex>
         </Form>
       </Box>
-      <SimpleGrid columns={2} spacing={10}>
+      <SimpleGrid
+        columnGap={{ sm: 0, md: 10 }}
+        templateColumns={{
+          base: "1fr",
+          md: "1fr 1fr",
+        }}
+      >
         {groups.map(({ name, id }) => (
           <Flex
             key={id}

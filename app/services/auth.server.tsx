@@ -30,7 +30,7 @@ authenticator.use(
       );
 
     const { Item: user } = await UserEntity.get({ id: email, sk: email });
-    
+
     if (user) {
       const passwordMatch = await bcrypt.compare(password, user.password);
 
@@ -43,6 +43,7 @@ authenticator.use(
         firstName: user.firstname,
         lastName: user.lastname,
         email: user.email,
+        legacyId: user.legacyId,
       };
     } else {
       throw new AuthorizationError("Usuario o contraseña incorrectos");
