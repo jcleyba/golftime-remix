@@ -148,7 +148,7 @@ export default function DashboardPage() {
             <EventCardItem
               id={nextEvent.id}
               event={nextEvent}
-              userId={currentUser?.id}
+              userId={currentUser?.legacyId}
             />
           </GridItem>
         )}
