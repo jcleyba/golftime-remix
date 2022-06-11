@@ -3,7 +3,7 @@ import { hasMailBeenSent } from "~/services/imap.server";
 import EventManager from "~/services/events.server";
 import { sendTeeTimes } from "~/services/email.server";
 import { listUsers } from "~/services/user.server";
-import type { User } from "~/services/session.server";
+import type { User } from "~/types";
 
 export const action: ActionFunction = async ({ request }) => {
   const tokenWithBearer = request.headers.get("authorization") || "";

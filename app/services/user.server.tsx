@@ -56,14 +56,14 @@ export const getUsersByEmail = async (emails: string[]) => {
     emails.map((email) => UserEntity.getBatch({ id: email, sk: email }))
   );
 
-  return (Responses?.golftime || []).map(
-    ({ email, firstName, lastName, points }: User) => ({
+  return (Responses?.golftime || [])
+    .map(({ email, firstName, lastName, points }: User) => ({
       email,
       firstName,
       lastName,
       points: points?.toFixed(2),
-    })
-  );
+    }))
+    .sort((a: User, b: User) => (b.points || 0) - (a.points || 0));
 };
 
 /*  const { rows, rowCount } = await sql(`select * from bets`, []);

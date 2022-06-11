@@ -76,7 +76,7 @@ export default function MyGroups() {
                 bg: "green.500",
               }}
               type="submit"
-              isLoading={!!transition.submission}
+              isLoading={transition.state === "submitting"}
             >
               Guardar
             </Button>

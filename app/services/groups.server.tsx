@@ -4,7 +4,8 @@ import { MonoTable } from "~/repositories/table";
 
 export const createGroup = async (groupName: string, userId: string) => {
   const groupId = crypto?.randomUUID();
-  MonoTable.transactWrite([
+
+  return MonoTable.transactWrite([
     GroupEntity.putTransaction({
       pk: `GROUP#${groupId}`,
       sk: `GROUP#${groupId}`,
@@ -19,18 +20,23 @@ export const createGroup = async (groupName: string, userId: string) => {
   ]);
 };
 
-export const addMembers = async (
+export const addMember = async (
   groupId: string,
-  members: { email: string; fullName: string }[]
+  memberId: string,
+  groupName: string
 ) => {
-  const operations = members.map(({ email }) =>
-    GroupEntity.putBatch({
-      pk: `GROUP#${groupId}`,
-      sk: `USER#${email}`,
-    })
-  );
+  return await GroupEntity.put({
+    pk: `GROUP#${groupId}`,
+    sk: `USER#${memberId}`,
+    groupName,
+  });
+};
 
-  await MonoTable.batchWrite(operations);
+export const removeMember = async (groupId: string, memberId: string) => {
+  return await GroupEntity.delete({
+    pk: `GROUP#${groupId}`,
+    sk: `USER#${memberId}`,
+  });
 };
 
 export const getGroupsForMember = async (memberId: string) => {

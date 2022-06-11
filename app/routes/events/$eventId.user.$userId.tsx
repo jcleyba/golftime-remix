@@ -8,8 +8,8 @@ import type { FoursomeType } from "~/components/Foursome";
 import { Foursome } from "~/components/Foursome";
 import { Leaderboard } from "~/components/Leaderboard";
 import { PlayerSelection } from "~/components/PlayersSelection";
-import { SearchBar } from "~/components/SearchBar";
 import SimpleSidebar from "~/components/Sidebar";
+import { useSearchBar } from "~/hooks";
 import authenticator from "~/services/auth.server";
 import { currentBet, saveBet } from "~/services/bet.server";
 import EventManager from "~/services/events.server";
@@ -69,8 +69,11 @@ export const action: ActionFunction = async ({ request }) => {
 export default function SingleEvent() {
   const { tournament, liveBet } = useLoaderData<LoaderData>();
   const [foursome, setFoursome] = useState<FoursomeType | {}>(liveBet || {});
-  const [competitors, setCompetitors] = useState<Competitor[]>(
-    tournament.competitors || []
+  const [SearchBar, competitors, resetCompetitors] = useSearchBar<Competitor>(
+    tournament.competitors,
+    (e) => (comp) =>
+      comp.name.toLowerCase().includes(e.target.value.toLowerCase()),
+    true
   );
   const submit = useSubmit();
   const params = useParams();
@@ -86,24 +89,13 @@ export default function SingleEvent() {
       formData.append("userId", params.userId || "");
 
       setFoursome(foursome);
-      setCompetitors(tournament.competitors);
+      resetCompetitors();
       submit(formData, {
         method: "post",
         action: `/events/${tournament.id}/user/${params.userId}`,
       });
     },
-    [setFoursome, submit, tournament, params.userId]
-  );
-
-  const filter = useCallback(
-    (e) => {
-      setCompetitors(
-        tournament.competitors?.filter((comp) =>
-          comp.name.toLowerCase().includes(e.target.value.toLowerCase())
-        )
-      );
-    },
-    [setCompetitors, tournament]
+    [setFoursome, resetCompetitors, submit, tournament, params.userId]
   );
 
   return (
@@ -137,7 +129,7 @@ export default function SingleEvent() {
         ) : tournament.competitors ? (
           <Form>
             <Box marginY="5">
-              <SearchBar filter={filter} variant="outline" />
+              <SearchBar />
             </Box>
             <PlayerSelection
               competitors={competitors}
