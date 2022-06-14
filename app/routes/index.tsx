@@ -62,7 +62,7 @@ export let loader: LoaderFunction = async ({ request }) => {
 
   const lastWinner = {
     points: lastEventResults?.[0]?.result,
-    user: users.find((u: User) => lastEventResults[0]?.userId === u.id),
+    user: users.find((u: User) => lastEventResults[0]?.userId === u.legacyId),
   };
 
   return json<LoaderData>({
@@ -145,11 +145,7 @@ export default function DashboardPage() {
         )}
         {nextEvent && (
           <GridItem colSpan={1} minH="100%">
-            <EventCardItem
-              id={nextEvent.id}
-              event={nextEvent}
-              userId={currentUser?.legacyId}
-            />
+            <EventCardItem id={nextEvent.id} event={nextEvent} />
           </GridItem>
         )}
       </SimpleGrid>

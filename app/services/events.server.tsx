@@ -126,15 +126,13 @@ class EventManager {
   };
 
   fetchCurrentEvent: () => Promise<Tournament> = async () => {
-    const data = await fetch(`${process.env.LEADERBOARD_ENDPOINT}`);
+    const currentEvent = await this.getActiveEvent();
 
-    if (!data.ok) {
+    if (!currentEvent?.id) {
       throw Error("Failed to fetch current tournament");
     }
 
-    const { leaderboard } = await data.json();
-
-    return leaderboard as Tournament;
+    return await this.fetchEventById(currentEvent.id);
   };
 
   async verifyTeeTimes() {
