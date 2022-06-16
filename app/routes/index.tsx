@@ -48,7 +48,7 @@ export let loader: LoaderFunction = async ({ request }) => {
     ]);
 
   const [liveBet, lastEventResults] = await Promise.all([
-    currentBet(currentEvent?.id, currentUser?.id),
+    currentBet(currentEvent?.id, currentUser?.legacyId),
     lastEventBets(lastEvent?.id),
   ]);
 
