@@ -1,4 +1,4 @@
-import type { ScheduledEvent, Tournament } from "~/types";
+import type { Competitor, ScheduledEvent, Tournament } from "~/types";
 
 import isThisWeek from "date-fns/isThisWeek";
 import isSameWeek from "date-fns/isSameWeek";
@@ -122,7 +122,16 @@ class EventManager {
 
     const { leaderboard } = await data.json();
 
-    return leaderboard as Tournament;
+    return {
+      ...leaderboard,
+      competitors: leaderboard.competitors.map((comp: Competitor) => ({
+        ...comp,
+        img: `${comp?.img?.replace(
+          ".com",
+          ".com/combiner/i?img="
+        )}&w=224&scale=crop&cquality=40`,
+      })),
+    } as Tournament;
   };
 
   fetchCurrentEvent: () => Promise<Tournament> = async () => {
