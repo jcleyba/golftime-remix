@@ -101,3 +101,14 @@ export type User = {
   verified?: boolean;
   legacyId?: string;
 };
+
+export type Bet = {
+  sk: string;
+  result: number;
+  players: {
+    id: string;
+    img: string;
+    name?: string;
+    position?: string;
+  }[];
+};

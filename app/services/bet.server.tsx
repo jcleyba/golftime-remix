@@ -1,29 +1,21 @@
 import { UserEntity } from "~/entities/User";
-import type { Competitor } from "~/types";
+import type { Bet } from "~/types";
+import { calcPoints, mapPlayers } from "~/utils";
 import { BetEntity } from "../entities/Bet";
 import EventManager from "./events.server";
 
-export type Bet = {
-  sk: string;
-  result: number;
-  players: {
-    id: string;
-    img: string;
-    name?: string;
-    position?: string;
-  }[];
-};
-
-export const lastEventBets = async (eventId?: string) => {
+export const betsByEventId = async (eventId?: string) => {
   if (!eventId) return null;
 
   const { Items } = await BetEntity.query(eventId, {
     reverse: true,
   });
 
-  return Items.map(({ sk: userId, result }: Bet) => ({
+  return Items.map(({ sk: userId, result, players, sk }: Bet) => ({
+    sk,
     userId,
     result,
+    players,
   })).sort((a: Bet, b: Bet) => b.result - a.result);
 };
 
@@ -97,27 +89,4 @@ export const bulkUpdateResults = async () => {
   await Promise.all(promiseArray).catch(() => {
     console.log("Already updated");
   });
-};
-
-const mapPlayers = (competitors: Competitor[]) => {
-  return competitors.reduce(
-    (acc: { [key: string]: number }, comp: Competitor) => {
-      const result =
-        comp.pos === "-" ? 0 : (1 / parseInt(comp.pos.replace("T", ""))) * 100;
-      acc[comp.id] = result;
-
-      return acc;
-    },
-    {}
-  );
-};
-
-const calcPoints = (
-  players: Bet["players"],
-  map: { [key: string]: number }
-) => {
-  return players.reduce((acc: number, pl: { id: string }) => {
-    acc += map[pl.id];
-    return acc;
-  }, 0);
 };

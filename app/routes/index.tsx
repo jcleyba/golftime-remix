@@ -17,13 +17,13 @@ import { Foursome } from "~/components/Foursome";
 import { MiniTable } from "~/components/MiniTable";
 import SimpleSidebar from "~/components/Sidebar";
 import authenticator from "~/services/auth.server";
-import type { Bet } from "~/services/bet.server";
-import { currentBet, lastEventBets } from "~/services/bet.server";
+import { currentBet, betsByEventId } from "~/services/bet.server";
 import EventsManager from "~/services/events.server";
-import type { User } from "~/types";
+import type { User, Bet } from "~/types";
 import { listUsers } from "~/services/user.server";
 import type { Competitor, ScheduledEvent, Tournament } from "~/types";
 import type { MetaFunction } from "@remix-run/node"; // or "@remix-run/cloudflare"
+import { calculateLiveBetPoints } from "~/utils";
 
 interface LoaderData {
   currentUser: User | null;
@@ -32,6 +32,7 @@ interface LoaderData {
   nextEvent: ScheduledEvent | null | undefined;
   lastWinner: { points: number; user: User };
   liveBet: Bet | null;
+  liveResultsByUser: Record<string, number> | null;
 }
 
 export const meta: MetaFunction = () => {
@@ -55,9 +56,10 @@ export let loader: LoaderFunction = async ({ request }) => {
       EventsManager.getLastActiveEvent(),
     ]);
 
-  const [liveBet, lastEventResults] = await Promise.all([
+  const [liveBet, lastEventResults, currentBets] = await Promise.all([
     currentBet(currentEvent?.id, currentUser?.legacyId),
-    lastEventBets(lastEvent?.id),
+    betsByEventId(lastEvent?.id),
+    betsByEventId(currentEvent?.id),
   ]);
 
   currentEvent = {
@@ -80,6 +82,10 @@ export let loader: LoaderFunction = async ({ request }) => {
     nextEvent,
     lastWinner,
     liveBet,
+    liveResultsByUser:
+      currentEvent.status === "in"
+        ? calculateLiveBetPoints(currentBets, currentEvent)
+        : null,
   });
 };
 
@@ -88,8 +94,15 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function DashboardPage() {
-  const { currentUser, currentEvent, users, nextEvent, liveBet, lastWinner } =
-    useLoaderData<LoaderData>();
+  const {
+    currentUser,
+    currentEvent,
+    users,
+    nextEvent,
+    liveBet,
+    lastWinner,
+    liveResultsByUser,
+  } = useLoaderData<LoaderData>();
   const colorValue = useColorModeValue("white", "gray.900");
   const { id: currentEventId, status, name, competitors } = currentEvent;
 
@@ -223,6 +236,19 @@ export default function DashboardPage() {
                 </Text>
               ),
             },
+            ...(liveResultsByUser
+              ? [
+                  {
+                    Header: "Live",
+                    Cell: ({ row }: { row: { original: User } }) => (
+                      <Text fontWeight={"600"}>
+                        {liveResultsByUser[row.original.legacyId || ""]}
+                      </Text>
+                    ),
+                  },
+                ]
+              : []),
+
             { Header: "Puntos", accessor: "points" },
           ]}
           data={users}
