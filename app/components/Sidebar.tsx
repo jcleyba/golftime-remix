@@ -84,7 +84,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       {...rest}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Image src={Logo} maxW={175} marginX={5} />
+        <Image src={Logo} maxW={175} marginX={5} alt="Golftime"/>
 
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
@@ -163,7 +163,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         icon={<FiMenu />}
       />
 
-      <Image src={Logo} maxW={175} marginX={5} />
+      <Image src={Logo} maxW={175} marginX={5} alt="Golftime" />
     </Flex>
   );
 };

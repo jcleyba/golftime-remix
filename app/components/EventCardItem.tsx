@@ -46,7 +46,7 @@ export default function EventCardItem({
         </Text>
 
         <Stack align={"center"} justify={"center"} direction={"row"} mt={6}>
-          <Image src={event.athlete.flag} maxW="10" />
+          <Image src={event.athlete.flag} maxW="10" alt={event.athlete.citizenship}/>
           <Text>{event.athlete.name}</Text>
           {event.purse && (
             <Badge fontSize="md" px={4} py={1} bg={badgeBg} fontWeight={"400"}>

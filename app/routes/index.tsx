@@ -23,6 +23,7 @@ import EventsManager from "~/services/events.server";
 import type { User } from "~/types";
 import { listUsers } from "~/services/user.server";
 import type { Competitor, ScheduledEvent, Tournament } from "~/types";
+import type { MetaFunction } from "@remix-run/node"; // or "@remix-run/cloudflare"
 
 interface LoaderData {
   currentUser: User | null;
@@ -32,6 +33,13 @@ interface LoaderData {
   lastWinner: { points: number; user: User };
   liveBet: Bet | null;
 }
+
+export const meta: MetaFunction = () => {
+  return {
+    title: "Golftime",
+    description: "El prode/fantasy del PGA Tour",
+  };
+};
 
 export let loader: LoaderFunction = async ({ request }) => {
   const auth = authenticator.isAuthenticated(request, {
@@ -179,7 +187,11 @@ export default function DashboardPage() {
               Header: "Player",
               Cell: ({ row }) => (
                 <Flex alignItems={"center"}>
-                  <Avatar src={row.original.img} size="sm" />
+                  <Avatar
+                    src={row.original.img}
+                    size="sm"
+                    name={row.original.name}
+                  />
                   <Text fontWeight={"600"} marginLeft={2}>
                     {row.original.name}
                   </Text>

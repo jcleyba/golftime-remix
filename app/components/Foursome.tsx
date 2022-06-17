@@ -53,7 +53,11 @@ export const Foursome = ({ foursome }: { foursome: FoursomeType }) => {
               alignItems="center"
               minH={120}
             >
-              <Avatar src={foursome[id].img} size="lg" />
+              <Avatar
+                src={foursome[id].img}
+                size="lg"
+                name={foursome[id].name}
+              />
               <Text ml="2" fontWeight={"bold"} textAlign="center">
                 {foursome[id].name}
               </Text>

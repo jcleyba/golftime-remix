@@ -65,7 +65,7 @@ export default function LoginPage() {
         px={6}
       >
         <Stack align={"center"}>
-          <Image src={Logo} maxW={275} marginX={5} />
+          <Image src={Logo} maxW={275} marginX={5} alt="Golftime" />
         </Stack>
 
         <Stack align={"center"}>

@@ -13,7 +13,7 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
-import type { ActionFunction, LoaderFunction} from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData, useTransition } from "@remix-run/react";
@@ -75,7 +75,7 @@ export default function LoginPage() {
         px={6}
       >
         <Stack align={"center"}>
-          <Image src={Logo} maxW={275} marginX={5} />
+          <Image src={Logo} maxW={275} marginX={5} alt="Golftime" />
         </Stack>
         <Stack align={"center"}>
           <Text fontSize={"lg"} color={"gray.600"}>

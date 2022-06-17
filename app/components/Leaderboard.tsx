@@ -31,7 +31,7 @@ export const Leaderboard = ({ tournament }: { tournament: Tournament }) => {
               <Td>{competitor.pos}</Td>
               <Td>
                 <Flex alignItems={"center"}>
-                  <Avatar src={competitor.img} />
+                  <Avatar src={competitor.img} name={competitor.name} />
                   <Text ml="2" fontWeight={"bold"}>
                     {competitor.name}
                   </Text>

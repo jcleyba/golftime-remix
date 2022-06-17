@@ -47,7 +47,7 @@ export const PlayerSelection = ({
             alignItems="center"
             minH={180}
           >
-            <Avatar src={player.img} size="lg" />
+            <Avatar src={player.img} size="lg" name={player.name}/>
             <Text ml="2" fontWeight={"bold"} textAlign="center">
               {player.name}
             </Text>
