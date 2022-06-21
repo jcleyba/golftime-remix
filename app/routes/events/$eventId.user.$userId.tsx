@@ -13,15 +13,16 @@ import { useSearchBar } from "~/hooks";
 import authenticator from "~/services/auth.server";
 import { currentBet, saveBet } from "~/services/bet.server";
 import EventManager from "~/services/events.server";
-import type { Competitor, Tournament } from "~/types";
+import type { Competitor, Tournament, User } from "~/types";
 
 interface LoaderData {
   tournament: Tournament;
   liveBet: FoursomeType | null;
+  user: User | null;
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  await authenticator.isAuthenticated(request, {
+  const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
@@ -40,6 +41,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const positionsByPlayer = keyBy(tournament.competitors, "id");
 
   return json<LoaderData>({
+    user,
     tournament: {
       ...tournament,
       competitors: tournament.competitors?.sort(
@@ -60,14 +62,15 @@ export const action: ActionFunction = async ({ request }) => {
   const players = (await data.get("players")) as string;
   const userId = (await data.get("userId")) as string;
   const eventId = (await data.get("eventId")) as string;
+  const email = (await data.get("email")) as string;
 
-  await saveBet(eventId, userId, JSON.parse(players));
+  await saveBet(eventId, userId, email, JSON.parse(players));
 
   return null;
 };
 
 export default function SingleEvent() {
-  const { tournament, liveBet } = useLoaderData<LoaderData>();
+  const { tournament, liveBet, user } = useLoaderData<LoaderData>();
   const [foursome, setFoursome] = useState<FoursomeType | {}>(liveBet || {});
   const [SearchBar, competitors, resetCompetitors] = useSearchBar<Competitor>(
     tournament.competitors,
@@ -87,6 +90,7 @@ export default function SingleEvent() {
       formData.append("players", JSON.stringify(Object.values(foursome)));
       formData.append("eventId", tournament.id);
       formData.append("userId", params.userId || "");
+      formData.append("email", user?.email || "");
 
       setFoursome(foursome);
       resetCompetitors();
@@ -95,7 +99,7 @@ export default function SingleEvent() {
         action: `/events/${tournament.id}/user/${params.userId}`,
       });
     },
-    [setFoursome, resetCompetitors, submit, tournament, params.userId]
+    [setFoursome, resetCompetitors, submit, user, tournament, params.userId]
   );
 
   return (

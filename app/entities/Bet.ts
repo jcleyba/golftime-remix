@@ -6,6 +6,7 @@ export const BetEntity = new Entity({
   attributes: {
     id: { partitionKey: true },
     sk: { sortKey: true },
+    email: { type: "string" },
     result: { type: "number" },
     players: { type: "list" },
     season: { type: "number" },

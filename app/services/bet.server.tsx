@@ -32,6 +32,7 @@ export const currentBet = async (eventId?: string, userId?: string) => {
 export const saveBet = async (
   eventId: string,
   userId: string,
+  email: string,
   players: Bet["players"]
 ) => {
   if (!eventId || !userId) return null;
@@ -39,6 +40,7 @@ export const saveBet = async (
   const result = await BetEntity.put({
     id: eventId,
     sk: userId,
+    email,
     season: process.env.CURRENT_SEASON,
     players,
   });
@@ -71,8 +73,8 @@ export const bulkUpdateResults = async () => {
     promiseArray.push(
       UserEntity.update(
         {
-          id: bet.sk,
-          sk: "User#Current",
+          id: bet.email,
+          sk: bet.email,
           points: { $add: points },
           lastUpdatedEvent: lastEvent.id,
         },

@@ -105,6 +105,7 @@ export type User = {
 export type Bet = {
   sk: string;
   result: number;
+  email: string;
   players: {
     id: string;
     img: string;
