@@ -71,7 +71,7 @@ export let loader: LoaderFunction = async ({ request }) => {
   };
 
   const lastWinner = {
-    points: lastEventResults?.[0]?.result,
+    points: Math.round(lastEventResults?.[0]?.result * 100) / 100,
     user: users.find((u: User) => lastEventResults[0]?.userId === u.legacyId),
   };
 

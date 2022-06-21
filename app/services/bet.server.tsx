@@ -1,4 +1,5 @@
 import { UserEntity } from "~/entities/User";
+import { MonoTable } from "~/repositories/table";
 import type { Bet } from "~/types";
 import { calcPoints, mapPlayers } from "~/utils";
 import { BetEntity } from "../entities/Bet";
@@ -71,20 +72,26 @@ export const bulkUpdateResults = async () => {
   bets.forEach((bet: Bet) => {
     const points = calcPoints(bet.players, playersMap);
     promiseArray.push(
-      UserEntity.update(
-        {
-          id: bet.email,
-          sk: bet.email,
-          points: { $add: points },
-          lastUpdatedEvent: lastEvent.id,
-        },
-        {
-          conditions: {
-            attr: "lastUpdatedEvent",
-            ne: lastEvent.id,
+      MonoTable.transactWrite([
+        BetEntity.updateTransaction({
+          ...bet,
+          result: points,
+        }),
+        UserEntity.updateTransaction(
+          {
+            id: bet.email,
+            sk: bet.email,
+            points: { $add: points },
+            lastUpdatedEvent: lastEvent.id,
           },
-        }
-      )
+          {
+            conditions: {
+              attr: "lastUpdatedEvent",
+              ne: lastEvent.id,
+            },
+          }
+        ),
+      ])
     );
   });
 
