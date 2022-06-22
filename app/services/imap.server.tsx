@@ -7,7 +7,7 @@ var client = new ImapClient("imap.gmail.com", 993, {
     user: process.env.MAIL_USERNAME,
     pass: process.env.MAIL_PASSWORD,
   },
-  useSecureTransport: true,
+  ignoreTLS: true,
 });
 
 export async function hasMailBeenSent() {
