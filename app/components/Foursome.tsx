@@ -17,8 +17,9 @@ export type FoursomeType = Record<
 
 export const Foursome = ({ foursome }: { foursome: FoursomeType }) => {
   const badgeBg = useColorModeValue("gray.50", "gray.800");
-
+  console.debug("$$$", foursome);
   const points = Object.keys(foursome).reduce((acc, key) => {
+    if (!key) return acc;
     const pos =
       (foursome[key].pos || "").replace("T", "").replace("-", "0") || "0";
 

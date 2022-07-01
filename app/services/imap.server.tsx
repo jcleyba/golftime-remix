@@ -7,12 +7,13 @@ var client = new ImapClient("imap.gmail.com", 993, {
     user: process.env.MAIL_USERNAME,
     pass: process.env.MAIL_PASSWORD,
   },
-  ignoreTLS: true,
 });
 
 export async function hasMailBeenSent() {
   try {
     await client.connect();
+
+    console.log("Connected to IMAP");
 
     const inbox = await client.selectMailbox("[Gmail]/Importantes");
 

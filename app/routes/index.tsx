@@ -109,7 +109,9 @@ export default function DashboardPage() {
   const positionsByPlayer = keyBy(competitors, "id");
   const foursome = (liveBet?.players || []).reduce(
     (acc: Record<string, Competitor>, pl) => {
-      acc[pl.id] = positionsByPlayer[pl.id];
+      if (positionsByPlayer[pl.id]) {
+        acc[pl.id] = positionsByPlayer[pl.id];
+      }
       return acc;
     },
     {}
