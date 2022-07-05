@@ -124,7 +124,7 @@ class EventManager {
 
     return {
       ...leaderboard,
-      competitors: leaderboard.competitors.map((comp: Competitor) => ({
+      competitors: (leaderboard?.competitors || []).map((comp: Competitor) => ({
         ...comp,
         img: `${comp?.img?.replace(
           ".com",
@@ -156,7 +156,7 @@ class EventManager {
           const { Items: rows } = await UserEntity.query("User#Current");
 
           await sendTeeTimes(
-            rows.map((row: { email: string }) => row.email),
+            (rows || []).map((row: { email: string }) => row.email),
             nextEvent.id,
             next.name
           );
