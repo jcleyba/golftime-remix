@@ -59,7 +59,7 @@ class EventManager {
       const eventList = await this.getEvents();
       if (!eventList?.length) return null;
 
-      return eventList?.find(
+      return eventList.find(
         (item: any) =>
           isThisWeek(new Date(item.startDate), { weekStartsOn: 2 }) &&
           item.description !== "Canceled"
@@ -135,8 +135,10 @@ class EventManager {
   };
 
   fetchCurrentEvent: () => Promise<Tournament> = async () => {
-    const currentEvent = await this.getActiveEvent();
-
+    const activeEvent = await this.getActiveEvent();
+    const eventsList = await this.getEvents();
+    const currentEvent = activeEvent || eventsList.pop();
+    console.debug('$$$', currentEvent)
     if (!currentEvent?.id) {
       throw Error("Failed to fetch current tournament");
     }
